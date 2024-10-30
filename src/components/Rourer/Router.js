@@ -3,6 +3,8 @@ import { Posts } from "../Pages/Posts";
 import { PostId } from "../Pages/PostId";
 import { Error } from "../Pages/Error";
 import { Login } from "../Pages/Login";
+import { Navigate } from "react-router-dom";
+
 export const privateRouter = [
   { path: "/about", element: About },
   { path: "/posts", element: Posts },
@@ -11,6 +13,6 @@ export const privateRouter = [
 ];
 
 export const publicRouter = [
-  { path: "/login", element: About },
-  { path: "/*", element: Error },
+  { path: "/login", element: Login },
+  { path: "/*", element: Login },
 ];

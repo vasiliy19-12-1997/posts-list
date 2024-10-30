@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFilter } from "../hooks/useFilter";
 import { useFetching } from "../hooks/useFething";
 import { PostService } from "../API/PostService";
@@ -19,12 +19,14 @@ export function Posts() {
   const [totalPages, setTotalPages] = useState(0);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-
+  const lastElement = useRef();
+  const observer = useRef();
   const sortedAndSearchPosts = useFilter(filter.sort, filter.query, posts);
+
   const [fetching, isLoading = true, error] = useFetching(async () => {
     const response = await PostService.getAll(limit, page);
     const totalCount = response.headers["x-total-count"];
-    setPosts(response.data);
+    setPosts([...posts, ...response.data]);
     setTotalPages(getPageCount(totalCount, limit));
   });
 
@@ -38,7 +40,20 @@ export function Posts() {
   function changePage(p) {
     setPage(p);
   }
+  console.log(page);
+  useEffect(() => {
+    if (isLoading) return;
+    if (observer.current) observer.current.disconnect();
 
+    const callback = function (entries) {
+      if (entries[0].isIntersecting && page < totalPages) {
+        console.log("заходим в интесекь");
+        setPage(page + 1);
+      }
+    };
+    observer.current = new IntersectionObserver(callback);
+    observer.current.observe(lastElement.current);
+  }, [isLoading]);
   useEffect(() => {
     fetching();
   }, [page]);
@@ -62,8 +77,9 @@ export function Posts() {
         <AddForm create={createPost} />
       </MyModal>
       <hr />
+      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
       <PostFilter filter={filter} setFilter={setFilter}></PostFilter>
-      {isLoading ? (
+      {isLoading && (
         <div
           style={{
             display: "flex",
@@ -73,17 +89,19 @@ export function Posts() {
         >
           <Loader></Loader>
         </div>
-      ) : (
-        <div>
-          {sortedAndSearchPosts.map((post, index) => (
-            <div key={post.id} className="post">
-              <PostItem num={index + 1} post={post} deletePost={deletePost} />
-            </div>
-          ))}
-        </div>
       )}
+      <div>
+        {sortedAndSearchPosts.map((post, index) => (
+          <div key={post.id} className="post">
+            <PostItem num={index + 1} post={post} deletePost={deletePost} />
+          </div>
+        ))}
+      </div>
+      <div
+        ref={lastElement}
+        style={{ backgroundColor: "red", width: "100%", height: "20px" }}
+      ></div>
       {error && <div>{error}</div>}
-      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
       {/* {sortedAndSearchPosts.length === 0 && (
         <strong style={{ display: "flex", justifyContent: "center" }}>
           Нет постов
