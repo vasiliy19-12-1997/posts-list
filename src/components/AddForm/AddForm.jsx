@@ -12,7 +12,6 @@ export default function AddForm(props) {
       id: Math.random(),
     };
     if ((newPost.title || newPost.description).length === 0) {
-      debugger;
       return;
     }
     // props.setPosts([...props.posts, { ...post, newPost }]);

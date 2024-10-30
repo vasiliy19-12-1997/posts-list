@@ -9,11 +9,12 @@ body {
 }
 #root {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .App {
   width: 800px;
-  margin: 0px 20px 0px 20px;
+  margin: 0px 20px 30px 20px;
 }
 .post {
   display: flex;
@@ -25,6 +26,40 @@ body {
   margin-bottom: 20px;
   p {
     font-size: 18px;
+    color: blue;
+  }
+}
+.page-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.page {
+  padding: 10px;
+  border: 1px solid teal;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.page-current {
+  border: 2px solid orange;
+}
+.navbar {
+  display: flex;
+  width: 100vw;
+  height: 50px;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 20px;
+}
+.navbar-links {
+  margin-left: auto;
+
+  cursor: pointer;
+  a {
+    margin: 0 15px;
+    text-decoration: none;
+  }
+  a:hover {
     color: blue;
   }
 }
