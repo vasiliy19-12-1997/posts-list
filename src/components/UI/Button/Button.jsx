@@ -1,8 +1,8 @@
 import s from "./Button.module.css";
-export default function Button(props, children) {
+export default function Button({ children, ...props }) {
   return (
     <button className={s.Button} {...props}>
-      {props.children}
+      {children}
     </button>
   );
 }

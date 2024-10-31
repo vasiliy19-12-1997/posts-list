@@ -14,7 +14,6 @@ export default function AddForm(props) {
     if ((newPost.title || newPost.description).length === 0) {
       return;
     }
-    // props.setPosts([...props.posts, { ...post, newPost }]);
     props.create(newPost);
     setPost({ title: "", description: "" });
   }

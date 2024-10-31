@@ -4,11 +4,12 @@ import Input from "../UI/Input/Input";
 import { AuthContext } from "../Context/Context";
 
 export function Login() {
-  function login() {
+  const { setIsAuth } = useContext(AuthContext);
+  function login(e) {
+    e.preventDefault();
     setIsAuth(true);
     localStorage.setItem("auth", true);
   }
-  const { setIsAuth } = useContext(AuthContext);
   return (
     <>
       <h1>Страница с логином</h1>

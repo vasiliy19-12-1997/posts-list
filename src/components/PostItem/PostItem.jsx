@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../UI/Button/Button";
 
 export default function PostItem(props) {
@@ -12,18 +12,20 @@ export default function PostItem(props) {
         <p>{props.post.description}</p>
       </div>
       <div style={{ display: "flex" }}>
-        <Button
-          style={{ display: "flex" }}
-          onClick={() => navigate(`/posts/${props.post.id}`)}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "210px",
+          }}
         >
-          Подробнее
-        </Button>
-        <Button
-          style={{ display: "flex" }}
-          onClick={() => props.deletePost(props.post.id)}
-        >
-          Delete Post
-        </Button>
+          <Button onClick={() => navigate(`/posts/${props.post.id}`)}>
+            Information
+          </Button>
+          <Button onClick={() => props.deletePost(props.post.id)}>
+            Delete Post
+          </Button>
+        </div>
       </div>
     </>
   );

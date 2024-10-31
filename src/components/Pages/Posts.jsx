@@ -1,19 +1,20 @@
-import { useState, useEffect, useRef } from "react";
-import { useFilter } from "../hooks/useFilter";
-import { useFetching } from "../hooks/useFething";
-import { PostService } from "../API/PostService";
-import { getPageCount } from "../Utils/utils";
-import Button from "../UI/Button/Button";
-import MyModal from "../UI/MyModal/MyModal";
-import AddForm from "../AddForm/AddForm";
-import PostFilter from "../PostFilter/PostFilter";
-import Loader from "../UI/Loader/Loader";
-import PostItem from "../PostItem/PostItem";
-import Pagination from "../UI/Pagination/Pagination";
+import { useEffect, useRef, useState } from "react";
 import "../../App.css";
+import AddForm from "../AddForm/AddForm";
+import { PostService } from "../API/PostService";
+import { useFetching } from "../hooks/useFething";
+import { useFilter } from "../hooks/useFilter";
+import { useObserver } from "../hooks/useObserver";
+import PostFilter from "../PostFilter/PostFilter";
+import { PostList } from "../PostList/PostList";
+import Button from "../UI/Button/Button";
+import Loader from "../UI/Loader/Loader";
+import MyModal from "../UI/MyModal/MyModal";
+import Pagination from "../UI/Pagination/Pagination";
+import { getPageCount } from "../Utils/utils";
 export function Posts() {
   const postsStorage = JSON.parse(localStorage.getItem("posts"));
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([] || postsStorage);
   const [filter, setFilter] = useState({ sort: "title", query: "" });
   const [visibleModal, setVisibleModal] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
@@ -40,23 +41,15 @@ export function Posts() {
   function changePage(p) {
     setPage(p);
   }
-  console.log(page);
-  useEffect(() => {
-    if (isLoading) return;
-    if (observer.current) observer.current.disconnect();
 
-    const callback = function (entries) {
-      if (entries[0].isIntersecting && page < totalPages) {
-        console.log("заходим в интесекь");
-        setPage(page + 1);
-      }
-    };
-    observer.current = new IntersectionObserver(callback);
-    observer.current.observe(lastElement.current);
-  }, [isLoading]);
+  useObserver(observer, isLoading, lastElement, (entries) => {
+    if (entries[0].isIntersecting && page < totalPages) {
+      setPage(page + 1);
+    }
+  });
   useEffect(() => {
     fetching();
-  }, [page]);
+  }, [page, limit]);
   useEffect(() => {
     localStorage.setItem("posts", JSON.stringify(posts));
   }, [posts]);
@@ -77,8 +70,13 @@ export function Posts() {
         <AddForm create={createPost} />
       </MyModal>
       <hr />
-      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
-      <PostFilter filter={filter} setFilter={setFilter}></PostFilter>
+      <PostFilter
+        filter={filter}
+        setFilter={setFilter}
+        limit={limit}
+        setLimit={setLimit}
+      />
+      {error && <h1>{error}</h1>}
       {isLoading && (
         <div
           style={{
@@ -87,26 +85,17 @@ export function Posts() {
             margin: "20px 0px",
           }}
         >
-          <Loader></Loader>
+          <Loader />
         </div>
       )}
       <div>
-        {sortedAndSearchPosts.map((post, index) => (
-          <div key={post.id} className="post">
-            <PostItem num={index + 1} post={post} deletePost={deletePost} />
-          </div>
-        ))}
+        <PostList posts={sortedAndSearchPosts} deletePost={deletePost} />
       </div>
+      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
       <div
         ref={lastElement}
-        style={{ backgroundColor: "red", width: "100%", height: "20px" }}
+        style={{ backgroundColor: "red", width: "100%", height: "0px" }}
       ></div>
-      {error && <div>{error}</div>}
-      {/* {sortedAndSearchPosts.length === 0 && (
-        <strong style={{ display: "flex", justifyContent: "center" }}>
-          Нет постов
-        </strong>
-      )} */}
     </div>
   );
 }
